@@ -15,7 +15,7 @@ export function LoginPage() {
     e.preventDefault()
     setError('')
 
-    if (username === 'mes' && password === 'mes1234') {
+    if (username === 'mes' && password === 'askmes') {
       sessionStorage.setItem('ask-demo:auth', 'true')
       navigate('/plant-overview', { replace: true })
     } else {

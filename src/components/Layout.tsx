@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   Gauge,
   Wrench,
@@ -20,6 +20,7 @@ import {
   ChevronLeft,
   ChevronRight,
   RotateCcw,
+  LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DemoBanner } from './DemoBanner'
@@ -47,6 +48,7 @@ const navigation = [
 
 export function Layout() {
   const location = useLocation()
+  const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(() => {
     try {
       return localStorage.getItem(SIDEBAR_KEY) === 'true'
@@ -62,6 +64,11 @@ export function Layout() {
       // ignore
     }
   }, [collapsed])
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('ask-demo:auth')
+    navigate('/login')
+  }
 
   const handleReset = () => {
     if (confirm('Reset all demo data? This will clear everything and re-seed defaults.')) {
@@ -124,8 +131,16 @@ export function Layout() {
             })}
           </nav>
 
-          {/* Collapse toggle + reset + version */}
+          {/* Logout + reset + collapse + version */}
           <div className="border-t p-2 space-y-1">
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center rounded-lg px-2 py-2 text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+              title="Logout"
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              {!collapsed && <span className="ml-2 text-xs">Logout</span>}
+            </button>
             <button
               onClick={handleReset}
               className="flex w-full items-center rounded-lg px-2 py-2 text-destructive hover:bg-destructive/10 transition-colors"

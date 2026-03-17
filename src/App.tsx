@@ -1,6 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Layout } from '@/components/Layout'
+import { LoginPage } from '@/pages/Login'
 import { OperatorAssignmentPage } from '@/pages/OperatorAssignment'
 import { OeeDashboardPage } from '@/pages/OeeDashboard'
 import { ToolManagementPage } from '@/pages/ToolManagement'
@@ -28,31 +29,44 @@ const queryClient = new QueryClient({
   },
 })
 
+function ProtectedRoute() {
+  const isAuthenticated = sessionStorage.getItem('ask-demo:auth') === 'true'
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+  return <Outlet />
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          {/* Main app with sidebar layout */}
-          <Route element={<Layout />}>
-            <Route index element={<Navigate to="/plant-overview" replace />} />
-            <Route path="plant-overview" element={<PlantOverviewPage />} />
-            <Route path="line-dashboard" element={<LineDashboardPage />} />
-            <Route path="part-loading" element={<PartLoadingScanPage />} />
-            <Route path="final-inspection" element={<FinalInspectionPage />} />
-            <Route path="operator-assignment" element={<OperatorAssignmentPage />} />
-            <Route path="mis" element={<MisReportPage />} />
-            <Route path="hourly-planning" element={<HourlyPlanningPage />} />
-            <Route path="hourly-report" element={<HourlyReportPage />} />
-            <Route path="oee" element={<OeeDashboardPage />} />
-            <Route path="quality-skips" element={<QualitySkipDetectionPage />} />
-            <Route path="record-rejects" element={<RecordRejectsPage />} />
-            <Route path="downtime-recording" element={<DowntimeRecordingPage />} />
-            <Route path="tools" element={<ToolManagementPage />} />
-            <Route path="tool-life-dashboard" element={<ToolLifeDashboardPage />} />
-            <Route path="traceability" element={<TraceabilityPage />} />
-            <Route path="reports" element={<ReportsPage />} />
-            <Route path="*" element={<Navigate to="/plant-overview" replace />} />
+          {/* Login route - full page, no sidebar */}
+          <Route path="login" element={<LoginPage />} />
+
+          {/* Protected routes with sidebar layout */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<Layout />}>
+              <Route index element={<Navigate to="/plant-overview" replace />} />
+              <Route path="plant-overview" element={<PlantOverviewPage />} />
+              <Route path="line-dashboard" element={<LineDashboardPage />} />
+              <Route path="part-loading" element={<PartLoadingScanPage />} />
+              <Route path="final-inspection" element={<FinalInspectionPage />} />
+              <Route path="operator-assignment" element={<OperatorAssignmentPage />} />
+              <Route path="mis" element={<MisReportPage />} />
+              <Route path="hourly-planning" element={<HourlyPlanningPage />} />
+              <Route path="hourly-report" element={<HourlyReportPage />} />
+              <Route path="oee" element={<OeeDashboardPage />} />
+              <Route path="quality-skips" element={<QualitySkipDetectionPage />} />
+              <Route path="record-rejects" element={<RecordRejectsPage />} />
+              <Route path="downtime-recording" element={<DowntimeRecordingPage />} />
+              <Route path="tools" element={<ToolManagementPage />} />
+              <Route path="tool-life-dashboard" element={<ToolLifeDashboardPage />} />
+              <Route path="traceability" element={<TraceabilityPage />} />
+              <Route path="reports" element={<ReportsPage />} />
+              <Route path="*" element={<Navigate to="/plant-overview" replace />} />
+            </Route>
           </Route>
         </Routes>
       </BrowserRouter>

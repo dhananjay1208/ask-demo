@@ -21,6 +21,8 @@ import {
   ChevronRight,
   RotateCcw,
   LogOut,
+  Menu,
+  X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DemoBanner } from './DemoBanner'
@@ -49,6 +51,7 @@ const navigation = [
 export function Layout() {
   const location = useLocation()
   const navigate = useNavigate()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(() => {
     try {
       return localStorage.getItem(SIDEBAR_KEY) === 'true'
@@ -64,6 +67,11 @@ export function Layout() {
       // ignore
     }
   }, [collapsed])
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [location.pathname])
 
   const handleLogout = () => {
     sessionStorage.removeItem('ask-demo:auth')
@@ -97,8 +105,86 @@ export function Layout() {
               DEMO
             </span>
           </div>
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="md:hidden ml-auto p-2 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
         </div>
       </header>
+
+      {/* Mobile slide-out menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-[100]">
+          {/* Overlay */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          {/* Panel */}
+          <div className="absolute inset-y-0 left-0 w-72 bg-background shadow-xl flex flex-col animate-in slide-in-from-left duration-200">
+            {/* Menu header */}
+            <div className="flex items-center justify-between p-4 border-b">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-sm">ASK</span>
+                </div>
+                <span className="font-semibold text-lg">Production System</span>
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Close menu"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            {/* Nav items */}
+            <nav className="flex-1 overflow-y-auto p-2 space-y-1">
+              {navigation.map((item) => {
+                const isActive = location.pathname === item.href
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={cn(
+                      'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                      isActive
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+                    )}
+                  >
+                    <item.icon className="h-4 w-4 shrink-0" />
+                    <span>{item.name}</span>
+                  </Link>
+                )
+              })}
+            </nav>
+            {/* Footer actions */}
+            <div className="border-t p-2 space-y-1">
+              <button
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+              >
+                <LogOut className="h-4 w-4 shrink-0" />
+                <span>Logout</span>
+              </button>
+              <button
+                onClick={handleReset}
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <RotateCcw className="h-4 w-4 shrink-0" />
+                <span>Reset Data</span>
+              </button>
+              <p className="text-xs text-muted-foreground mt-2 px-3">
+                ASK Production v1.0.0 (Demo)
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex">
         {/* Sidebar */}
@@ -171,27 +257,6 @@ export function Layout() {
         </main>
       </div>
 
-      {/* Mobile bottom navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-background">
-        <div className="flex justify-around py-2">
-          {navigation.slice(0, 5).map((item) => {
-            const isActive = location.pathname === item.href
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  'flex flex-col items-center gap-1 p-2 text-xs',
-                  isActive ? 'text-primary' : 'text-muted-foreground'
-                )}
-              >
-                <item.icon className="h-5 w-5" />
-                <span>{item.name}</span>
-              </Link>
-            )
-          })}
-        </div>
-      </nav>
     </div>
   )
 }
